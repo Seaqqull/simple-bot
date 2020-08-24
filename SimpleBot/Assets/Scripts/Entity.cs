@@ -8,11 +8,16 @@ namespace SimpleBot.Entities
     [Serializable]
     public class Entity : Base.BaseBehaviour, Base.IRunLater
     {
+        [SerializeField] [OwnAttribute.ReadOnly] protected Health.HealthBase _health;
 
         protected Rigidbody _body;
         protected int _id;
         protected bool _isDead;
 
+        public Health.HealthBase Health
+        {
+            get { return _health; }
+        }
         public Rigidbody Body
         {
             get { return _body; }
@@ -32,6 +37,30 @@ namespace SimpleBot.Entities
             base.Awake();
 
             _id = GameObj.GetInstanceID();
+            _body = GetComponent<Rigidbody>();
+            _health = GetComponent<Health.HealthBase>();
+
+            if (_health == null)
+                _health = SimpleBot.Health.HealthBase.HealthNo.Instance;
+            else
+            {
+                _health.OnHealthMinus += OnHealthMinus;
+                _health.OnHealthPlus += OnHealthPlus;
+            }
+        }
+
+
+        protected virtual bool CheckDead()
+        {
+            if (_isDead) return false;
+            return _health.IsZero;
+        }
+
+        protected virtual void OnHealthPlus() { }
+        protected virtual void OnHealthMinus()
+        {
+            if (CheckDead())
+                OnDeath();
         }
 
 
