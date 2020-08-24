@@ -9,6 +9,7 @@ namespace SimpleBot.Entities
     public class Entity : Base.BaseBehaviour, Base.IRunLater
     {
         [SerializeField] [OwnAttribute.ReadOnly] protected Health.HealthBase _health;
+        [SerializeField] protected Aiming.AimPoint _aimPoint;
 
         protected Rigidbody _body;
         protected int _id;
@@ -17,6 +18,14 @@ namespace SimpleBot.Entities
         public Health.HealthBase Health
         {
             get { return _health; }
+        }
+        public Transform AimTransform
+        {
+            get { return _aimPoint?.Transform ?? Transform; }
+        }
+        public Vector3 AimPosition
+        {
+            get { return this._aimPoint?.Position ?? Transform.position; }
         }
         public Rigidbody Body
         {
@@ -47,6 +56,9 @@ namespace SimpleBot.Entities
                 _health.OnHealthMinus += OnHealthMinus;
                 _health.OnHealthPlus += OnHealthPlus;
             }
+
+            if (_aimPoint == null)
+                _aimPoint = GetComponentInChildren<Aiming.AimPoint>();
         }
 
 
